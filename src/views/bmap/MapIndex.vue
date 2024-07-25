@@ -9,7 +9,7 @@
           active-text-color="#ffd04b"
           background-color="#545c64"
           class="el-menu-vertical-demo map-page-menu"
-          :default-active="defaultActive"
+          :default-active="activeMenuKey"
           text-color="#fff"
           :collapse="isCollapse"
         >
@@ -44,15 +44,17 @@
         <i-ep-Fold v-else class="ef-icons" @click="expandFoldChange" />
       </div>
       <div class="map-page-body-right">
-        <RouterView />
+        <MapPage v-if="activeMenuKey === 'mapPage'"></MapPage>
+        <HomeTown v-if="activeMenuKey === 'homeTown'"></HomeTown>
       </div>
     </div>
   </div>
 </template>
 <script setup name="HomePage" lang="ts">
-let defaultActive = ref<string>('mapIndex')
+import MapPage from './subdemo/MapPage.vue'
+import HomeTown from './subdemo/HomeTown.vue'
+let activeMenuKey = ref<string>('mapPage')
 let isCollapse = ref<boolean>(false)
-let router = useRouter()
 const menuTree = reactive([
   {
     menuTitle: '百度地图',
@@ -70,9 +72,7 @@ const expandFoldChange = () => {
 }
 // 菜单点击跳转
 const onMenuChange = (menuKey: string) => {
-  router.push({
-    name: menuKey
-  })
+  activeMenuKey.value = menuKey
 }
 </script>
 <style lang="scss">

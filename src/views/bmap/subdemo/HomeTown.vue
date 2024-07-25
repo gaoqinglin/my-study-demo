@@ -4,10 +4,15 @@
     <div class="operate-container">
       <el-button type="primary" @click="frameSelect">框选</el-button>
     </div>
+    <div ref="scenicInfoWindow" class="scenic-info-window" v-if="state.isShowInfoWindow">
+      <p>{{ state.activeMarkerInfo.name }}</p>
+      <p>{{ state.activeMarkerInfo.description }}</p>
+    </div>
   </div>
 </template>
 <script lang="ts" setup name="HomeTown">
 import type { scenicSpotPointInfo } from '../mappagemodel'
+import { sectorInfoList } from '@/data/sectorInfo'
 let BMap = window['BMap']
 let BMapLib = window['BMapLib']
 let state = reactive({
@@ -16,11 +21,19 @@ let state = reactive({
   drawingOverlay: null, // 绘制完成后的覆盖物
   markerClusterer: null, // 点聚合实例
   markerArr: [], // 点标记集合
+  activeMarkerInfo: null,
+  infoWindow: null, // 信息窗口
+  isShowInfoWindow: false,
   isDrawing: false,
 })
+let scenicInfoWindow = ref()
 const scenicPoint = reactive<scenicSpotPointInfo[]>([
-  { lng: 112.18, lat: 31.01, name: '武当山景区', id: 'wudang' },
+  { lng: 111.068092, lat: 32.470586, name: '武当山景区', id: 'wudang' },
+  { lng: 111.126518, lat: 32.707492, name: '丹江口', id: 'danjiangkou' },
+  { lng: 110.843952, lat: 33.119346, name: '九龙瀑大峡谷', id: 'jiulongpu' },
+  { lng: 110.338548, lat: 31.428361, name: '神农架', id: 'shennongjia' },
   { lng: 111.020705, lat: 30.823822, name: '三峡大坝', id: 'sanxia' },
+  { lng: 113.637568, lat: 29.883545, name: '三国赤壁古战场 ', id: 'sanguochibi' },
   { lng: 114.309203, lat: 30.549902, name: '黄鹤楼', id: 'huanghelou' },
 ])
 onMounted(() => {
@@ -32,9 +45,9 @@ const initMap = () => {
   state.mapObj = new BMap.Map('mapContainer', { enableMapClick: false }); // 创建地图实例
   let point = new BMap.Point(112.18, 31.01);  // 创建点坐标
   state.mapObj.centerAndZoom(point, 8);  // 初始化地图，设置中心点坐标和地图级别
+  state.mapObj.setMinZoom(8);  // 设置地图最新缩放级别
   state.mapObj.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放
   state.mapObj.setMapType(window["BMAP_HYBRID_MAP"]);
-  // const provinceId = '420000';
   // 调用行政区划数据接口
   // 加载指定区域边界
   const bdary = new BMap.Boundary();
@@ -45,7 +58,7 @@ const initMap = () => {
           strokeWeight: 1,
           strokeColor: '#FF0000',
           strokeOpacity: 0.5,
-          fillColor: '#00FF00',
+          fillColor: '',
           fillOpacity: 0.2,
         });
         state.mapObj.addOverlay(ply);
@@ -60,8 +73,8 @@ const setSectorPoints = () => {
     let point = new BMap.Point(item.lng, item.lat);
     let marker = new BMap.Marker(point);
     state.markerArr.push(marker); // 点聚合使用
-    marker.addEventListener('click', () => {
-      getSectorInfo(item)
+    marker.addEventListener('click', (e) => {
+      getSectorInfo(e, item.id)
     })
     state.mapObj.addOverlay(marker)
   })
@@ -81,16 +94,35 @@ const setMarkerClusterer = () => {
   })
 }
 // 点击标点获取详细信息
-const getSectorInfo = (info: scenicSpotPointInfo) => {
-  console.log(info)
-  let point = new BMap.Point(info.lng, info.lat);
-  state.mapObj.centerAndZoom(point, 15)
+const getSectorInfo = (e: any, id: string) => {
+  console.log(e)
+  state.isShowInfoWindow = true
+  state.activeMarkerInfo = sectorInfoList.find(item => item.id === id)
+  // state.mapObj.centerAndZoom(e.target.point, 15)
+  let options = {
+    width: 300,
+    height: 220,
+    title: '',
+    enableAutoPan: false,
+    offset: new BMap.Size(150, 230),
+    enableCloseOnClick: false
+  }
+  nextTick(() => {
+    state.infoWindow = new BMap.InfoWindow(scenicInfoWindow.value, options)
+    state.mapObj.openInfoWindow(state.infoWindow, e.target.point)
+  })
+  // setTimeout(() => {
+  //   state.infoWindow = new BMap.InfoWindow(scenicInfoWindow.value, options)
+  //   state.mapObj.openInfoWindow(state.infoWindow, e.target.point);
+  // }, 50)
 }
 
 // 框选
 const frameSelect = () => {
   // 详情见 https://lbsyun.baidu.com/cms/jsapi/reference/jsapi_reference.html#a3b15 PolygonOptions类
+  let infoWindowElement = document.querySelector(".BMap_bubble_content")?.parentNode as HTMLBaseElement // 解决绘制经过弹窗失去焦点问题
   if (state.drawingManager && state.drawingManager._isOpen) {
+    if (infoWindowElement) infoWindowElement.style.pointerEvents = 'unset'
     clearDrawingOverlay() // 关闭框选时清除绘制的遮盖物
     state.isDrawing = false
     state.drawingManager.close(); // 关闭绘制
@@ -117,6 +149,7 @@ const frameSelect = () => {
     state.drawingManager.setDrawingMode(window['BMAP_DRAWING_RECTANGLE']) // 矩形
     // 3. 开启绘制
     state.drawingManager.open()
+    if (infoWindowElement) infoWindowElement.style.pointerEvents = 'none'
     // 4. 绘制完成回调
     state.drawingManager.addEventListener('overlaycomplete', e => {
       console.log(e);
@@ -152,6 +185,9 @@ const clearDrawingOverlay = () => {
   .map-container {
     width: 100%;
     height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
   }
   .operate-container {
     position: absolute;
@@ -159,5 +195,24 @@ const clearDrawingOverlay = () => {
     left: 16px;
     z-index: 999;
   }
+  .scenic-info-window {
+    width: 100%;
+    height: auto !important;
+    color: #fff;
+    padding: 10px;
+    font-size: 12px;
+    border-radius: 8px;
+    background: rgba(6, 30, 52, 0.6);
+    backdrop-filter: blur(2px);
+  }
+}
+:deep(.BMap_shadow) {
+  display: none;
+}
+:deep(.BMap_pop) {
+  visibility: hidden;
+}
+:deep(.BMap_bubble_content) {
+  visibility: visible;
 }
 </style>

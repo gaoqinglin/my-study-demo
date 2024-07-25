@@ -6,37 +6,17 @@ const router = createRouter({
     {
       path: '/',
       name: 'index',
-      redirect: '/mapIndex',
+      redirect: '/homePage',
     },
     {
-      path: '/home',
-      name: 'home',
+      path: '/homePage',
+      name: 'homePage',
       component: () => import('@/views/homepage/HomePage.vue'),
-      // children: [
-      //   {
-      //     path: 'mapIndex',
-      //     name: 'mapIndex',
-      //     component: () => import('@/views/bmap/MapIndex.vue'),
-      //   },
-      // ]
     },
     {
       path: '/mapIndex',
       name: 'mapIndex',
       component: () => import('@/views/bmap/MapIndex.vue'),
-      redirect: '/mapIndex/mapPage',
-      children: [
-        {
-          path: 'mapPage',
-          name: 'mapPage',
-          component: () => import('@/views/bmap/subdemo/MapPage.vue'),
-        },
-        {
-          path: 'homeTown',
-          name: 'homeTown',
-          component: () => import('@/views/bmap/subdemo/HomeTown.vue'),
-        },
-      ]
     },
   ]
 })
