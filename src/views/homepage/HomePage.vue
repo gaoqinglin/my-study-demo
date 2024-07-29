@@ -4,6 +4,7 @@
   </div>
 </template>
 <script setup name="HomePage" lang="ts">
+import { api } from '@/api'
 let router = useRouter()
 let moduleList = reactive([
   {
@@ -11,6 +12,14 @@ let moduleList = reactive([
     key: 'mapIndex',
   },
 ])
+onMounted(() => {
+  let params = {
+    id: '1111'
+  }
+  api.otaPlanList(params).then(res => {
+    console.log(res)
+  })
+})
 const toModule = (item: any) => {
   router.push({ name: item.key })
 }
