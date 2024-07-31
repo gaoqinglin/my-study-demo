@@ -13,7 +13,7 @@ onMounted(() => {
 })
 // 初始化地图
 const initMap = () => {
-  mapState.mapObj = new BMap.Map('mapContainer'); // 创建地图实例 
+  mapState.mapObj = new BMap.Map('mapContainer', { enableMapClick: false }); // 创建地图实例 
   let point = new BMap.Point(116.404, 39.915);  // 创建点坐标 
   mapState.mapObj.centerAndZoom(point, 15);  // 初始化地图，设置中心点坐标和地图级别
   mapState.mapObj.enableScrollWheelZoom(true); // 开启鼠标滚轮缩放

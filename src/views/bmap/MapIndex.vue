@@ -46,6 +46,7 @@
       <div class="map-page-body-right">
         <MapPage v-if="activeMenuKey === 'mapPage'"></MapPage>
         <HomeTown v-if="activeMenuKey === 'homeTown'"></HomeTown>
+        <LuShu v-if="activeMenuKey === 'luShu'"></LuShu>
       </div>
     </div>
   </div>
@@ -53,7 +54,8 @@
 <script setup name="HomePage" lang="ts">
 import MapPage from './subdemo/MapPage.vue'
 import HomeTown from './subdemo/HomeTown.vue'
-let activeMenuKey = ref<string>('mapPage')
+import LuShu from './subdemo/LuShu.vue'
+let activeMenuKey = ref<string>('luShu')
 let isCollapse = ref<boolean>(false)
 const menuTree = reactive([
   {
@@ -62,7 +64,8 @@ const menuTree = reactive([
     menuIcon: 'Location',
     children: [
       { menuTitle: '地图初始化', menuIcon: '', menuKey: 'mapPage', },
-      { menuTitle: '省份特写', menuIcon: '', menuKey: 'homeTown', }
+      { menuTitle: '省份特写', menuIcon: '', menuKey: 'homeTown', },
+      { menuTitle: '路书', menuIcon: '', menuKey: 'luShu', },
     ]
   },
 ])

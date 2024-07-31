@@ -1,6 +1,7 @@
 <template>
   <div class="home-page">
     <el-button v-for="item in moduleList" :key="item.key" type="primary" @click="toModule(item)">{{ item.title }}</el-button>
+    <div class="test"></div>
   </div>
 </template>
 <script setup name="HomePage" lang="ts">
@@ -13,12 +14,6 @@ let moduleList = reactive([
   },
 ])
 onMounted(() => {
-  let params = {
-    id: '1111'
-  }
-  api.otaPlanList(params).then(res => {
-    console.log(res)
-  })
 })
 const toModule = (item: any) => {
   router.push({ name: item.key })

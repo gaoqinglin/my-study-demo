@@ -13,6 +13,7 @@
 <script lang="ts" setup name="HomeTown">
 import type { scenicSpotPointInfo } from '../mappagemodel'
 import { sectorInfoList } from '@/data/sectorInfo'
+import { getImgUrl } from '@/utils/tools'
 let BMap = window['BMap']
 let BMapLib = window['BMapLib']
 let state = reactive({
@@ -71,7 +72,9 @@ const initMap = () => {
 const setSectorPoints = () => {
   scenicPoint.forEach((item) => {
     let point = new BMap.Point(item.lng, item.lat);
-    let marker = new BMap.Marker(point);
+    // 自定义marker标记的图标，其他配置项看文档
+    let icon = new BMap.Icon(getImgUrl("pngs/point.png"), new BMap.Size(30, 30));
+    let marker = new BMap.Marker(point, { icon });
     state.markerArr.push(marker); // 点聚合使用
     marker.addEventListener('click', (e) => {
       getSectorInfo(e, item.id)
@@ -85,12 +88,14 @@ const setMarkerClusterer = () => {
   // 详细的options配置见点聚合开源库
   state.markerClusterer = new BMapLib.MarkerClusterer(state.mapObj, {
     markers: state.markerArr,
-    // styles: [
-    //   {
-    //     url: '',
-    //     size: new BMap.Size(48, 48),
-    //   }
-    // ],
+    styles: [
+      {
+        url: `${getImgUrl("pngs/clustererIcon.png")}`,
+        size: new BMap.Size(88, 88),
+        textSize: 28,
+        textColor: "#fff"
+      }
+    ]
   })
 }
 // 点击标点获取详细信息
@@ -205,14 +210,5 @@ const clearDrawingOverlay = () => {
     background: rgba(6, 30, 52, 0.6);
     backdrop-filter: blur(2px);
   }
-}
-:deep(.BMap_shadow) {
-  display: none;
-}
-:deep(.BMap_pop) {
-  visibility: hidden;
-}
-:deep(.BMap_bubble_content) {
-  visibility: visible;
 }
 </style>

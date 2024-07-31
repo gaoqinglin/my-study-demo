@@ -97,3 +97,13 @@ body {
 .BMap_attribution a {
     display: none !important;
 }
+/* 信息窗口隐藏自带的样式 */
+.BMap_shadow {
+  display: none;
+}
+.BMap_pop {
+  visibility: hidden;
+}
+.BMap_bubble_content {
+  visibility: visible;
+}
